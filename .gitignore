@@ -1,2 +1,5 @@
 database.db
 .vscode/launch.json
+database.db-journal
+test.sh
+__debug_bin
