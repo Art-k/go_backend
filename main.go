@@ -135,8 +135,11 @@ func boardToDo(w http.ResponseWriter, r *http.Request) {
 
 		var Response apiHTTPResponseJSONToDo
 
-		if r.URL.Query().Get("mac") != "" {
-			db.Where("mac = ?", r.URL.Query().Get("mac")).Where("command_done = ?", false).Find(&Response.Entity)
+		if r.URL.Query().Get("mac") != "" && r.URL.Query().Get("command_done") != "" {
+			db.Where("mac = ?", r.URL.Query().Get("mac")).Where("command_done = ?", r.URL.Query().Get("mac")).Find(&Response.Entity)
+		}
+		if r.URL.Query().Get("mac") != "" && r.URL.Query().Get("command_done") == "" {
+			db.Where("mac = ?", r.URL.Query().Get("mac")).Where("command_done = ?", false).Limit(3).Find(&Response.Entity)
 		}
 
 		Response.API = version
