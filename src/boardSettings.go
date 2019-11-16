@@ -39,38 +39,38 @@ func GetBoardSettings(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: This section should be finished i mean POST for Board settings
 	case "POST":
-		type incomingDataStructure struct {
-			Mac                  string
-			SensorType           string
-			Sense                string
-			Pin                  string
-			Interval             int64
-			Delta                int64
-			Default              string
-			AdditionalParameters string
-		}
-		var incomingData incomingDataStructure
+		// type incomingDataStructure struct {
+		// 	Mac                  string
+		// 	SensorType           string
+		// 	Sense                string
+		// 	Pin                  string
+		// 	Interval             int64
+		// 	Delta                int64
+		// 	Default              string
+		// 	AdditionalParameters string
+		// }
+		// var incomingData incomingDataStructure
 
-		err := json.NewDecoder(r.Body).Decode(&incomingData)
-		if err != nil {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Headers", "*")
-			w.Header().Set("content-type", "application/json")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+		// err := json.NewDecoder(r.Body).Decode(&incomingData)
+		// if err != nil {
+		// 	w.Header().Set("Access-Control-Allow-Origin", "*")
+		// 	w.Header().Set("Access-Control-Allow-Headers", "*")
+		// 	w.Header().Set("content-type", "application/json")
+		// 	http.Error(w, err.Error(), http.StatusBadRequest)
+		// 	return
+		// }
 
-		Db.Create(&BoardSettingsTable{Mac: incomingData.Mac, Name: incomingData.Name, Description: incomingData.Description})
+		// Db.Create(&BoardSettingsTable{Mac: incomingData.Mac, Name: incomingData.Name, Description: incomingData.Description})
 
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.WriteHeader(http.StatusCreated)
+		// w.Header().Set("Access-Control-Allow-Origin", "*")
+		// w.WriteHeader(http.StatusCreated)
 
-		var boardSettingsData BoardSettingsTable
-		Db.Last(&boardSettingsData)
-		addedrecordString, _ := json.Marshal(boardSettingsData)
+		// var boardSettingsData BoardSettingsTable
+		// Db.Last(&boardSettingsData)
+		// addedrecordString, _ := json.Marshal(boardSettingsData)
 
-		fmt.Println(addedrecordString)
-		fmt.Fprintf(w, string(addedrecordString))
+		// fmt.Println(addedrecordString)
+		// fmt.Fprintf(w, string(addedrecordString))
 
 	case "GET":
 
