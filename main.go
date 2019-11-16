@@ -70,6 +70,7 @@ func main() {
 	Src.Db.AutoMigrate(&senseDataTable{})
 	Src.Db.AutoMigrate(&Src.BoardSettingsTable{})
 	Src.Db.AutoMigrate(&Src.BoardToDoTable{})
+	Src.Db.AutoMigrate(&Src.UnknownBoards{})
 	handleHTTP()
 }
 
@@ -77,6 +78,7 @@ func handleHTTP() {
 
 	http.HandleFunc("/set_sense_data", sensorDatas)
 	http.HandleFunc("/boards", boards)
+	http.HandleFunc("/unknownboards", unknownboards)
 	http.HandleFunc("/sensor_types", sensorTypes)
 	http.HandleFunc("/sensors_data", sensorDatas)
 
@@ -151,7 +153,7 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 				sql = Src.Db.Where("type = ?", r.URL.Query().Get("type"))
 			}
 
-			sql.Order("created_at desc").Find(&Response.Entity)
+			sql.Order("created_at asc").Find(&Response.Entity)
 		}
 
 		Response.API = Src.Version
@@ -264,6 +266,37 @@ func boards(w http.ResponseWriter, r *http.Request) {
 
 	default:
 		fmt.Fprintf(w, "Sorry, only POST methods are supported.")
+	}
+}
+
+
+func unknownboards(w http.ResponseWriter, r *http.Request) {
+
+	switch r.Method {
+
+	case "GET":
+
+		type apiHTTPResponseJSONUnknownBoards struct {
+			API    string       `json:"api"`
+			Total  int          `json:"total"`
+			Entity []Src.UnknownBoards `json:"entity"`
+		}
+
+		var Response apiHTTPResponseJSONUnknownBoards
+
+		Src.Db.Find(&Response.Entity)
+		Response.API = Src.Version
+		Response.Total = len(Response.Entity)
+
+		addedrecordString, _ := json.Marshal(Response)
+
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Fprintf(w, string(addedrecordString))
+
+	default:
+		fmt.Fprintf(w, "Sorry, only GET methods are supported.")
 	}
 }
 

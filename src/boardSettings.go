@@ -10,6 +10,12 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// UnknownBoards list of the boards which does't has settings
+type UnknownBoards struct {
+	gorm.Model
+	Mac string
+}
+
 // BoardSettingsTable table
 type BoardSettingsTable struct {
 	gorm.Model
@@ -136,6 +142,11 @@ func GetBoardSettings(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, string(addedrecordString))
 
 		log.Println("/board_settings GET answered\n\n")
+
+		if Response.Total == 0 {
+			Db.Create(&UnknownBoards{Mac: r.URL.Query().Get("mac")})
+			log.Println("/board_settings GET MAC '" + r.URL.Query().Get("mac") + "' is unknown, added to list of unknown boards \n\n")
+		}
 
 	default:
 		fmt.Fprintf(w, "Sorry, only POST methods are supported.")
