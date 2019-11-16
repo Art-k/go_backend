@@ -1,3 +1,4 @@
+
 export GOPATH=/home/art-k/go/src/go_backend/src
 cd $HOME/go/src/go_backend
 git pull
