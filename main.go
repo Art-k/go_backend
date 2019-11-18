@@ -162,6 +162,7 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 		addedrecordString, _ := json.Marshal(Response)
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, string(addedrecordString))
 
