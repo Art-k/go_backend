@@ -38,13 +38,8 @@ func GetChartData(w http.ResponseWriter, r *http.Request) {
 				endDate = getDefaultEndDate()
 			}
 
-			var sD []SenseDataTable
-			Db.Where("mac = ?", MAC).Where("created_at <= ?", endDate).Where("created_at >= ?", startDate).Group("type").Find(&sD)
-
-			var sData []SenseDataTable
-			Db.Where("mac = ?", MAC).Where("created_at <= ?", endDate).Where("created_at >= ?", startDate).Find(&sData)
-
 			var Response APIHTTPResponseJSONSensorDatas
+			Db.Where("mac = ?", MAC).Where("created_at <= ?", endDate).Where("created_at >= ?", startDate).Find(&Response.Entity)
 
 			Response.API = Version
 			Response.Total = len(Response.Entity)
