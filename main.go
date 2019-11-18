@@ -22,13 +22,7 @@ type boardTable struct {
 	Description string
 }
 
-type senseDataTable struct {
-	gorm.Model
-	Mac   string
-	Type  string
-	Value float64
-	Unit  string
-}
+
 
 type apiHTTPResponseJSONBoards struct {
 	API    string       `json:"api"`
@@ -36,11 +30,6 @@ type apiHTTPResponseJSONBoards struct {
 	Entity []boardTable `json:"entity"`
 }
 
-type apiHTTPResponseJSONSensorDatas struct {
-	API    string           `json:"api"`
-	Total  int              `json:"total"`
-	Entity []senseDataTable `json:"entity"`
-}
 
 type apiHTTPResponseJSONSensorTypes struct {
 	API    string   `json:"api"`
@@ -67,7 +56,7 @@ func main() {
 	// databasePrepare()
 	// Migrate the schema
 	Src.Db.AutoMigrate(&boardTable{})
-	Src.Db.AutoMigrate(&senseDataTable{})
+	Src.Db.AutoMigrate(&Src.SenseDataTable{})
 	Src.Db.AutoMigrate(&Src.BoardSettingsTable{})
 	Src.Db.AutoMigrate(&Src.BoardToDoTable{})
 	Src.Db.AutoMigrate(&Src.UnknownBoards{})
@@ -84,6 +73,7 @@ func handleHTTP() {
 
 	http.HandleFunc("/board_settings", Src.GetBoardSettings)
 	http.HandleFunc("/todo", Src.BoardToDo)
+	http.HandleFunc("/chart", Src.GetChartData)
 
 
 	fmt.Printf("Starting Server to HANDLE ahome.tech back end\nPort : " + Src.Port + "\nAPI revision " + Src.Version + "\n\n")
@@ -101,7 +91,7 @@ func sensorTypes(w http.ResponseWriter, r *http.Request) {
 			Entity []string `json:"entity"`
 		}
 		var Response responseJSON
-		var records []senseDataTable
+		var records []Src.SenseDataTable
 		if r.URL.Query().Get("mac") != "" {
 			Src.Db.Where("mac = ?", r.URL.Query().Get("mac")).Group("type").Find(&records)
 		} else {
@@ -131,7 +121,7 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		fmt.Println("GET sensor data")
 
-		var Response apiHTTPResponseJSONSensorDatas
+		var Response Src.APIHTTPResponseJSONSensorDatas
 		var sql *gorm.DB
 
 		if r.URL.Query().Get("mac") != "" && r.URL.Query().Get("type") != "" && r.URL.Query().Get("last") != "" {
@@ -191,7 +181,7 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 			Src.Db.Create(&boardTable{Mac: incomingData.Mac})
 		}
 
-		Src.Db.Create(&senseDataTable{
+		Src.Db.Create(&Src.SenseDataTable{
 			Mac:   incomingData.Mac,
 			Type:  incomingData.Valuetype,
 			Value: incomingData.Value,
@@ -200,7 +190,7 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.WriteHeader(http.StatusCreated)
 
-		var senseData senseDataTable
+		var senseData Src.SenseDataTable
 		Src.Db.Last(&senseData)
 		addedrecordString, _ := json.Marshal(senseData)
 
@@ -327,12 +317,12 @@ func setSensorData(w http.ResponseWriter, r *http.Request) {
 		if board.Mac == "" {
 			Src.Db.Create(&boardTable{Mac: incomingData.Mac})
 		}
-		Src.Db.Create(&senseDataTable{Mac: incomingData.Mac, Type: incomingData.Valuetype, Value: incomingData.Value, Unit: incomingData.Unit})
+		Src.Db.Create(&Src.SenseDataTable{Mac: incomingData.Mac, Type: incomingData.Valuetype, Value: incomingData.Value, Unit: incomingData.Unit})
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.WriteHeader(http.StatusCreated)
 
-		var senseData senseDataTable
+		var senseData Src.SenseDataTable
 		Src.Db.Last(&senseData)
 		addedrecordString, _ := json.Marshal(senseData)
 
