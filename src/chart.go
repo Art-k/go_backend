@@ -19,14 +19,15 @@ func GetChartData(w http.ResponseWriter, r *http.Request) {
 		var MAC = r.URL.Query().Get("mac")
 		var startDate = r.URL.Query().Get("start")
 		var endDate = r.URL.Query().Get("end")
-		// var senseType = r.URL.Query().Get("type")
+		var senseType = r.URL.Query().Get("type")
+		var Compact = r.URL.Query().Get("compact")
 
 		log.Println("/chart MAC : " + MAC)
 		if MAC != "" {
-			// log.Println("/chart senseType : " + senseType)
-			// if senseType == "" {
-			// 	senseType = getDefaultSenseType()
-			// }
+			log.Println("/chart senseType : " + senseType)
+			if senseType == "" {
+				senseType = getDefaultSenseType()
+			}
 
 			log.Println("/chart startDate : " + startDate)
 			if startDate == "" {
@@ -39,7 +40,31 @@ func GetChartData(w http.ResponseWriter, r *http.Request) {
 			}
 
 			var Response APIHTTPResponseJSONSensorDatas
-			Db.Where("mac = ?", MAC).Where("created_at <= ?", endDate).Where("created_at >= ?", startDate).Find(&Response.Entity)
+			Db.Where("mac = ?", MAC).Where("type = ?", senseType).Where("created_at <= ?", endDate).Where("created_at >= ?", startDate).Find(&Response.Entity)
+
+			if Compact == "1" {
+				var PrevValue float64
+				PrevValue = -99999999
+				var PrevSense string
+				PrevSense = ""
+				var NewEntity []SenseDataTable
+				for _, element := range Response.Entity {
+					if PrevSense == "" {
+						PrevSense = element.Type
+						if PrevValue == -99999999 {
+							PrevValue = element.Value
+						}
+						continue
+					}
+					if !(PrevSense == element.Type && PrevValue == element.Value) {
+						NewEntity = append(NewEntity, element)
+						PrevSense = element.Type
+						PrevValue = element.Value
+					}
+				}
+
+				Response.Entity = NewEntity
+			}
 
 			Response.API = Version
 			Response.Total = len(Response.Entity)
@@ -63,6 +88,10 @@ func GetChartData(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func removeSenseDataTable(slice []SenseDataTable, s int) []SenseDataTable {
+	return append(slice[:s], slice[s+1:]...)
+}
+
 func getDefaultStartDate() string {
 	var yesterdayTime = time.Now().Add(-24 * time.Hour)
 	return yesterdayTime.Format("2006-01-02")
@@ -76,21 +105,21 @@ func getDefaultEndDate() string {
 func getDefaultSenseType() string {
 	// var senseData SenseDataTable
 
-	type responseJSON struct {
-		API    string   `json:"api"`
-		Total  int      `json:"total"`
-		Entity []string `json:"entity"`
-	}
+	// type responseJSON struct {
+	// 	API    string   `json:"api"`
+	// 	Total  int      `json:"total"`
+	// 	Entity []string `json:"entity"`
+	// }
 
-	// var Response responseJSON
-	var records []SenseDataTable
-	Db.Group("type").Find(&records)
+	// // var Response responseJSON
+	// var records []SenseDataTable
+	// Db.Group("type").Find(&records)
 
-	var Result string
-	for _, element := range records {
-		Result = element.Type
-		break
-	}
+	// var Result string
+	// for _, element := range records {
+	// 	Result = element.Type
+	// 	break
+	// }
 
-	return Result
+	return "temperature"
 }
