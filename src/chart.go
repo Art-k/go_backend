@@ -9,6 +9,51 @@ import (
 )
 
 // GetChartData http handler
+
+// GetChartsData the function to return charts data several boards + several
+func GetChartsData(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+
+		log.Println("/charts GET received")
+		var startDate = r.URL.Query().Get("start")
+		var endDate = r.URL.Query().Get("end")
+		var group = r.URL.Query().Get("group")
+
+		fmt.Println("Start Date", startDate)
+		fmt.Println("End Date", endDate)
+		fmt.Println("Group by", group)
+
+		type senseData struct {
+			mac   string
+			sense string
+		}
+		var incomingData []senseData
+
+		err := json.NewDecoder(r.Body).Decode(&incomingData)
+		if err != nil {
+			log.Println("Wrong Input")
+		}
+
+		type rec []float32
+		type responseData struct {
+			datas  []string
+			values []rec
+			header []string
+		}
+
+		// for _, elem := range incomingData{
+		// 	Data =
+		// }
+
+	default:
+		fmt.Fprintf(w, "Sorry, only GET methods are supported. '"+r.Method+"' received")
+		log.Println("/charts GET done\n")
+	}
+
+}
+
+// GetChartData simple chart for one parameter
 func GetChartData(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 

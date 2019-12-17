@@ -50,7 +50,7 @@ func GetBoardSettings(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		fmt.Fprintf(w, string(""))
 
-		log.Println("/board_settings OPTIONS answered\n\n")
+		log.Println("/board_settings OPTIONS answered")
 
 	case "DELETE":
 

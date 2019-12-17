@@ -17,6 +17,7 @@ const DbLogMode = true
 // Port application use this port to get requests
 const Port = "55555"
 
+// SenseDataTable collect sense data to table 
 type SenseDataTable struct {
 	gorm.Model
 	Mac   string
@@ -25,8 +26,24 @@ type SenseDataTable struct {
 	Unit  string
 }
 
+// APIHTTPResponseJSONSensorDatas respons 
 type APIHTTPResponseJSONSensorDatas struct {
 	API    string           `json:"api"`
 	Total  int              `json:"total"`
 	Entity []SenseDataTable `json:"entity"`
+}
+
+// IncomingDataStructure structure 
+type IncomingDataStructure struct {
+	Mac       string  `json:"mac"`
+	Valuetype string  `json:"valuetype"`
+	Value     float64 `json:"value"`
+	Unit      string  `json:"unit"`
+}
+
+// DeviceState state dynamic
+type DeviceState struct{
+	gorm.Model
+	ByMac 		string `json:"by_mac"`
+	NewState 	string `json:"new_state"`
 }

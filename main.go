@@ -23,7 +23,6 @@ type boardTable struct {
 }
 
 
-
 type apiHTTPResponseJSONBoards struct {
 	API    string       `json:"api"`
 	Total  int          `json:"total"`
@@ -60,6 +59,7 @@ func main() {
 	Src.Db.AutoMigrate(&Src.BoardSettingsTable{})
 	Src.Db.AutoMigrate(&Src.BoardToDoTable{})
 	Src.Db.AutoMigrate(&Src.UnknownBoards{})
+	Src.Db.AutoMigrate(&Src.DeviceState{})
 	handleHTTP()
 }
 
@@ -74,6 +74,7 @@ func handleHTTP() {
 	http.HandleFunc("/board_settings", Src.GetBoardSettings)
 	http.HandleFunc("/todo", Src.BoardToDo)
 	http.HandleFunc("/chart", Src.GetChartData)
+	http.HandleFunc("/charts", Src.GetChartsData)
 
 
 	fmt.Printf("Starting Server to HANDLE ahome.tech back end\nPort : " + Src.Port + "\nAPI revision " + Src.Version + "\n\n")
@@ -149,6 +150,14 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 		Response.API = Src.Version
 		Response.Total = len(Response.Entity)
 
+		var BoardSet Src.BoardSettingsTable 
+		Src.Db.Where("mac = ?", r.URL.Query().Get("mac")).Where("type = ?", r.URL.Query().Get("type")).Last(&BoardSet)
+
+		for _, element := range Response.Entity {
+			element.Value = element.Value + float64(BoardSet.Delta)
+		}
+		
+
 		addedrecordString, _ := json.Marshal(Response)
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -158,13 +167,8 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 
 	case "POST":
 		fmt.Println("POST sensor data")
-		type incomingDataStructure struct {
-			Mac       string  `json:"mac"`
-			Valuetype string  `json:"valuetype"`
-			Value     float64 `json:"value"`
-			Unit      string  `json:"unit"`
-		}
-		var incomingData incomingDataStructure
+
+		var incomingData Src.IncomingDataStructure
 
 		err := json.NewDecoder(r.Body).Decode(&incomingData)
 		if err != nil {
@@ -189,6 +193,10 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.WriteHeader(http.StatusCreated)
+
+		if incomingData.Mac == "3c:71:bf:f9:01:b0" {
+			Src.CheckIfTenOn(incomingData)
+		}
 
 		var senseData Src.SenseDataTable
 		Src.Db.Last(&senseData)
