@@ -78,6 +78,7 @@ func CheckIfTenOn(incData IncomingDataStructure) {
 
 			s0 := strconv.FormatFloat(senseData[0].Value, 'f', 6, 64)
 			sl := strconv.FormatFloat(senseData[len(senseData)-1].Value, 'f', 6, 64)
+
 			postTelegrammMessage(incData.Mac + " температура на " +
 				senseData[0].CreatedAt.Format("2006-01-02 15:04:05") +
 				" : " +

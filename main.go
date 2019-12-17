@@ -194,7 +194,7 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.WriteHeader(http.StatusCreated)
 
-		if incomingData.Mac == "3c:71:bf:f9:01:b0" {
+		if incomingData.Mac == "3c:71:bf:f9:01:b0" && incomingData.Valuetype == "temperature" {
 			Src.CheckIfTenOn(incomingData)
 		}
 

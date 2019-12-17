@@ -10,3 +10,6 @@ log_go_backend.txt
 deploy.sh
 db.db
 src/open_server
+open_server
+dt.db
+log.txt
