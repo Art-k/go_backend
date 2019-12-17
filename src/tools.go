@@ -2,6 +2,7 @@ package src
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -52,7 +53,7 @@ func CheckIfTenOn(incData IncomingDataStructure) {
 	var senseData []SenseDataTable
 	Db.Where(&SenseDataTable{Mac: incData.Mac, Type: incData.Valuetype}).Limit(5).Order("created_at desc").Find(&senseData)
 	for _, data := range senseData {
-		fmt.Println(data)
+		log.Println(data)
 	}
 
 	if senseData[0].Value-senseData[len(senseData)-1].Value >= 2 {
@@ -60,7 +61,7 @@ func CheckIfTenOn(incData IncomingDataStructure) {
 	} else {
 		Db.Where(&SenseDataTable{Mac: incData.Mac, Type: incData.Valuetype}).Limit(20).Order("created_at desc").Find(&senseData)
 		for _, data := range senseData {
-			fmt.Println(data)
+			log.Println(data)
 		}
 		if senseData[0].Value-senseData[len(senseData)-1].Value <= -2 {
 			currentState = "OFF"
@@ -68,7 +69,7 @@ func CheckIfTenOn(incData IncomingDataStructure) {
 	}
 
 	if currentState != "" {
-		fmt.Println(currentState)
+		log.Println(currentState)
 		var ds DeviceState
 		Db.Where("by_mac = ?", incData.Mac).Last(&ds)
 		if ds.NewState != currentState {
@@ -77,18 +78,18 @@ func CheckIfTenOn(incData IncomingDataStructure) {
 
 			s0 := strconv.FormatFloat(senseData[0].Value, 'f', 6, 64)
 			sl := strconv.FormatFloat(senseData[len(senseData)-1].Value, 'f', 6, 64)
-			postTelegrammMessage("температура на " +
+			postTelegrammMessage(incData.Mac + " температура на " +
 				senseData[0].CreatedAt.Format("2006-01-02 15:04:05") +
 				" : " +
 				s0)
 
-			postTelegrammMessage("температура на " +
+			postTelegrammMessage(incData.Mac + " температура на " +
 				senseData[len(senseData)-1].CreatedAt.Format("2006-01-02 15:04:05") +
 				" : " +
 				sl)
 
 		} else {
-			fmt.Println("The same state")
+			log.Println("The same state")
 		}
 	}
 
