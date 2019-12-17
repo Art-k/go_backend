@@ -3,6 +3,7 @@ package src
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	guuid "github.com/satori/go.uuid"
@@ -73,6 +74,19 @@ func CheckIfTenOn(incData IncomingDataStructure) {
 		if ds.NewState != currentState {
 			Db.Create(&DeviceState{ByMac: incData.Mac, NewState: currentState})
 			postTelegrammMessage("Состояние изменено. текущее состояние : " + currentState)
+
+			s0 := strconv.FormatFloat(senseData[0].Value, 'f', 6, 64)
+			sl := strconv.FormatFloat(senseData[len(senseData)-1].Value, 'f', 6, 64)
+			postTelegrammMessage("температура на " +
+				senseData[0].CreatedAt.Format("2006-01-02 15:04:05") +
+				" : " +
+				s0)
+
+			postTelegrammMessage("температура на " +
+				senseData[len(senseData)-1].CreatedAt.Format("2006-01-02 15:04:05") +
+				" : " +
+				sl)
+
 		} else {
 			fmt.Println("The same state")
 		}
