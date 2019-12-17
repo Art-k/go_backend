@@ -49,7 +49,7 @@ func CheckIfTenOn(incData IncomingDataStructure) {
 	var currentState string
 
 	var senseData []SenseDataTable
-	Db.Where(&SenseDataTable{Mac: incData.Mac, Type: incData.Valuetype}).Limit(3).Order("created_at desc").Find(&senseData)
+	Db.Where(&SenseDataTable{Mac: incData.Mac, Type: incData.Valuetype}).Limit(5).Order("created_at desc").Find(&senseData)
 	for _, data := range senseData {
 		fmt.Println(data)
 	}
