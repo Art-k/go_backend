@@ -58,7 +58,7 @@ func CheckIfTenOn(incData IncomingDataStructure) {
 	}
 
 	if senseData[0].Value-senseData[len(senseData)-1].Value >= 2 {
-		currentState = "Tp"
+		currentState = "ON"
 	} else {
 		Db.Where(&SenseDataTable{Mac: incData.Mac, Type: incData.Valuetype}).Limit(20).Order("created_at desc").Find(&senseData)
 		for _, data := range senseData {
@@ -77,8 +77,8 @@ func CheckIfTenOn(incData IncomingDataStructure) {
 			Db.Create(&DeviceState{ByMac: incData.Mac, NewState: currentState})
 			postTelegrammMessage("Состояние изменено. текущее состояние : " + currentState)
 
-			s0 := strconv.FormatFloat(senseData[0].Value, 'f', 6, 64)
-			sl := strconv.FormatFloat(senseData[len(senseData)-1].Value, 'f', 6, 64)
+			s0 := strconv.FormatFloat(senseData[0].Value, 'f', 2, 64)
+			sl := strconv.FormatFloat(senseData[len(senseData)-1].Value, 'f', 2, 64)
 
 			postTelegrammMessage(incData.Mac + " температура на " +
 				senseData[len(senseData)-1].CreatedAt.Add(time.Hour*time.Duration(2)).Format("2006-01-02 15:04:05") +
