@@ -11,8 +11,6 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-
-	
 )
 
 type boardTable struct {
@@ -22,13 +20,11 @@ type boardTable struct {
 	Description string
 }
 
-
 type apiHTTPResponseJSONBoards struct {
 	API    string       `json:"api"`
 	Total  int          `json:"total"`
 	Entity []boardTable `json:"entity"`
 }
-
 
 type apiHTTPResponseJSONSensorTypes struct {
 	API    string   `json:"api"`
@@ -60,6 +56,8 @@ func main() {
 	Src.Db.AutoMigrate(&Src.BoardToDoTable{})
 	Src.Db.AutoMigrate(&Src.UnknownBoards{})
 	Src.Db.AutoMigrate(&Src.DeviceState{})
+	Src.Db.AutoMigrate(&Src.SGroup{})
+	Src.Db.AutoMigrate(&Src.SensorsGroup{})
 	handleHTTP()
 }
 
@@ -76,6 +74,11 @@ func handleHTTP() {
 	http.HandleFunc("/chart", Src.GetChartData)
 	http.HandleFunc("/charts", Src.GetChartsData)
 
+	http.HandleFunc("/group", Src.GroupCRUD)
+	http.HandleFunc("/groups", Src.Groups)
+
+	http.HandleFunc("/group_of_sensors", Src.GroupCRUD)
+	http.HandleFunc("/groups_of_sensors", Src.Groups)
 
 	fmt.Printf("Starting Server to HANDLE ahome.tech back end\nPort : " + Src.Port + "\nAPI revision " + Src.Version + "\n\n")
 	if err := http.ListenAndServe(":"+Src.Port, nil); err != nil {
@@ -150,13 +153,12 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 		Response.API = Src.Version
 		Response.Total = len(Response.Entity)
 
-		var BoardSet Src.BoardSettingsTable 
+		var BoardSet Src.BoardSettingsTable
 		Src.Db.Where("mac = ?", r.URL.Query().Get("mac")).Where("type = ?", r.URL.Query().Get("type")).Last(&BoardSet)
 
 		for _, element := range Response.Entity {
 			element.Value = element.Value + float64(BoardSet.Delta)
 		}
-		
 
 		addedrecordString, _ := json.Marshal(Response)
 
@@ -268,7 +270,6 @@ func boards(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 func unknownboards(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
@@ -276,8 +277,8 @@ func unknownboards(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 
 		type apiHTTPResponseJSONUnknownBoards struct {
-			API    string       `json:"api"`
-			Total  int          `json:"total"`
+			API    string              `json:"api"`
+			Total  int                 `json:"total"`
 			Entity []Src.UnknownBoards `json:"entity"`
 		}
 

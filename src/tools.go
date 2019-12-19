@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	guuid "github.com/satori/go.uuid"
 )
@@ -57,7 +58,7 @@ func CheckIfTenOn(incData IncomingDataStructure) {
 	}
 
 	if senseData[0].Value-senseData[len(senseData)-1].Value >= 2 {
-		currentState = "ON"
+		currentState = "Tp"
 	} else {
 		Db.Where(&SenseDataTable{Mac: incData.Mac, Type: incData.Valuetype}).Limit(20).Order("created_at desc").Find(&senseData)
 		for _, data := range senseData {
@@ -80,14 +81,14 @@ func CheckIfTenOn(incData IncomingDataStructure) {
 			sl := strconv.FormatFloat(senseData[len(senseData)-1].Value, 'f', 6, 64)
 
 			postTelegrammMessage(incData.Mac + " температура на " +
-				senseData[0].CreatedAt.Format("2006-01-02 15:04:05") +
-				" : " +
-				s0)
-
-			postTelegrammMessage(incData.Mac + " температура на " +
-				senseData[len(senseData)-1].CreatedAt.Format("2006-01-02 15:04:05") +
+				senseData[len(senseData)-1].CreatedAt.Add(time.Hour*time.Duration(2)).Format("2006-01-02 15:04:05") +
 				" : " +
 				sl)
+
+			postTelegrammMessage(incData.Mac + " температура на " +
+				senseData[0].CreatedAt.Add(time.Hour*time.Duration(2)).Format("2006-01-02 15:04:05") +
+				" : " +
+				s0)
 
 		} else {
 			log.Println("The same state")

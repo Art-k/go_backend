@@ -13,3 +13,4 @@ src/open_server
 open_server
 dt.db
 log.txt
+/go_build_main_go.exe
