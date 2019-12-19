@@ -36,8 +36,8 @@ func postTelegrammMessage(msg string) {
 
 	url = url + msg
 	fmt.Println("\n" + url + "\n")
-	http.Get(url)
-
+	response, _ := http.Get(url)
+	fmt.Println(response)
 }
 
 // GetHash we use it to get hasj=h for todo command
@@ -94,5 +94,4 @@ func CheckIfTenOn(incData IncomingDataStructure) {
 			log.Println("The same state")
 		}
 	}
-
 }
