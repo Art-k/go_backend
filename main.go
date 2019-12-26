@@ -113,10 +113,12 @@ func sensorTypes(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, string(addedrecordString))
+		n, _ := fmt.Fprintf(w, string(addedrecordString))
+		fmt.Println(n)
 
 	default:
-		fmt.Fprintf(w, "Sorry, only POST methods are supported.")
+		n, _ := fmt.Fprintf(w, "Sorry, only POST methods are supported.")
+		fmt.Println(n)
 	}
 }
 
@@ -165,7 +167,8 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, string(addedrecordString))
+		n, _ := fmt.Fprintf(w, string(addedrecordString))
+		fmt.Println(n)
 
 	case "POST":
 		fmt.Println("POST sensor data")
@@ -205,10 +208,12 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 		addedrecordString, _ := json.Marshal(senseData)
 
 		// fmt.Println(addedrecordString)
-		fmt.Fprintf(w, string(addedrecordString))
+		n, _ := fmt.Fprintf(w, string(addedrecordString))
+		fmt.Println(n)
 
 	default:
-		fmt.Fprintf(w, "Sorry, only POST methods are supported.")
+		n, _ := fmt.Fprintf(w, "Sorry, only POST methods are supported.")
+		fmt.Println(n)
 	}
 }
 
@@ -218,9 +223,42 @@ func boards(w http.ResponseWriter, r *http.Request) {
 	case "OPTIONS":
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Headers", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "*")
 		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusNoContent)
-		fmt.Fprintf(w, string(""))
+		n, _ := fmt.Fprintf(w, string(""))
+		fmt.Println(n)
+
+	case "PATCH":
+		type incomingDataStructure struct {
+			Id          uint   `json:"id"`
+			Name        string `json:"name"`
+			Description string `json:"description"`
+		}
+		var incomingData incomingDataStructure
+
+		err := json.NewDecoder(r.Body).Decode(&incomingData)
+		if err != nil {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Headers", "*")
+			w.Header().Set("content-type", "application/json")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		var Board boardTable
+		Src.Db.Where("ID = ?", incomingData.Id).Find(&Board)
+		Board.Name = incomingData.Name
+		Board.Description = incomingData.Description
+		Src.Db.Save(&Board)
+
+		//var boardData boardTable
+		//Src.Db.Last(&boardData)
+		addedrecordString, _ := json.Marshal(Board)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.WriteHeader(http.StatusOK)
+		n, _ := fmt.Fprintf(w, string(addedrecordString))
+		fmt.Println(n)
 
 	case "POST":
 		type incomingDataStructure struct {
@@ -249,7 +287,8 @@ func boards(w http.ResponseWriter, r *http.Request) {
 		addedrecordString, _ := json.Marshal(boardData)
 
 		fmt.Println(addedrecordString)
-		fmt.Fprintf(w, string(addedrecordString))
+		n, _ := fmt.Fprintf(w, string(addedrecordString))
+		fmt.Println(n)
 
 	case "GET":
 

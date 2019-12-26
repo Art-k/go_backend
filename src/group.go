@@ -19,6 +19,7 @@ func Groups(w http.ResponseWriter, r *http.Request) {
 func GroupCRUD(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "OPTIONS":
+
 	case "POST":
 	case "PATCH":
 	case "DELETE":
