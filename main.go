@@ -290,6 +290,20 @@ func boards(w http.ResponseWriter, r *http.Request) {
 		n, _ := fmt.Fprintf(w, string(addedrecordString))
 		fmt.Println(n)
 
+	case "DELETE":
+		// TODO add ability to delete board from main table
+
+		type incomingDataStructure struct {
+			ID string `json:"id"`
+		}
+		var incomingData incomingDataStructure
+		var board boardTable
+
+		Src.Db.Where("id = ?", incomingData.ID).Delete(&board)
+
+		n, _ := fmt.Fprintf(w, "")
+		fmt.Println(n)
+
 	case "GET":
 
 		var Response apiHTTPResponseJSONBoards
@@ -302,10 +316,12 @@ func boards(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.WriteHeader(http.StatusOK)
 
-		fmt.Fprintf(w, string(addedrecordString))
+		n, _ := fmt.Fprintf(w, string(addedrecordString))
+		fmt.Println(n)
 
 	default:
-		fmt.Fprintf(w, "Sorry, only POST methods are supported.")
+		n, _ := fmt.Fprintf(w, "Sorry, only POST methods are supported.")
+		fmt.Println(n)
 	}
 }
 
