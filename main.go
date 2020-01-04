@@ -145,9 +145,9 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 				sql = Src.Db.Where("mac = ?", r.URL.Query().Get("mac"))
 			}
 
-			if r.URL.Query().Get("mac") == "" && r.URL.Query().Get("type") != "" {
-				sql = Src.Db.Where("type = ?", r.URL.Query().Get("type"))
-			}
+			//if r.URL.Query().Get("mac") == "" && r.URL.Query().Get("type") != "" {
+			//	sql = Src.Db.Where("type = ?", r.URL.Query().Get("type"))
+			//}
 
 			sql.Order("created_at asc").Find(&Response.Entity)
 		}
