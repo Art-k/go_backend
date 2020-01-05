@@ -324,6 +324,7 @@ func boards(w http.ResponseWriter, r *http.Request) {
 func unknownboards(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
+
 	case "OPTIONS":
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Headers", "*")
