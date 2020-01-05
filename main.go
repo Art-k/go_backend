@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	Src "./src"
 
@@ -291,15 +292,10 @@ func boards(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(n)
 
 	case "DELETE":
-		// TODO add ability to delete board from main table
 
-		type incomingDataStructure struct {
-			ID string `json:"id"`
-		}
-		var incomingData incomingDataStructure
 		var board boardTable
-
-		Src.Db.Where("id = ?", incomingData.ID).Delete(&board)
+		id, _ := strconv.ParseUint(r.URL.Query().Get("id"), 10, 32)
+		Src.Db.Where("id = ?", id).Delete(&board)
 
 		n, _ := fmt.Fprintf(w, "")
 		fmt.Println(n)
