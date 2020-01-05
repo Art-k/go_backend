@@ -324,6 +324,23 @@ func boards(w http.ResponseWriter, r *http.Request) {
 func unknownboards(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
+	case "OPTIONS":
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "*")
+		w.Header().Set("content-type", "application/json")
+		w.WriteHeader(http.StatusNoContent)
+		n, _ := fmt.Fprintf(w, string(""))
+		fmt.Println(n)
+
+	case "DELETE":
+
+		var board Src.UnknownBoards
+		id := r.URL.Query().Get("mac")
+		Src.Db.Where("mac = ?", id).Delete(&board)
+
+		n, _ := fmt.Fprintf(w, "")
+		fmt.Println(n)
 
 	case "GET":
 
@@ -339,15 +356,17 @@ func unknownboards(w http.ResponseWriter, r *http.Request) {
 		Response.API = Src.Version
 		Response.Total = len(Response.Entity)
 
-		addedrecordString, _ := json.Marshal(Response)
+		addedRecordString, _ := json.Marshal(Response)
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.WriteHeader(http.StatusOK)
 
-		fmt.Fprintf(w, string(addedrecordString))
+		n, _ := fmt.Fprintf(w, string(addedRecordString))
+		fmt.Println(n)
 
 	default:
-		fmt.Fprintf(w, "Sorry, only GET methods are supported.")
+		n, _ := fmt.Fprintf(w, "Sorry, only GET methods are supported.")
+		fmt.Println(n)
 	}
 }
 
