@@ -51,8 +51,17 @@ type DeviceState struct {
 // SGroup sensor groups to show in one screen or chart
 type SGroup struct {
 	gorm.Model
-	Name    string         `json:"name"`
+	Name    string         `json:"name;unique_index"`
 	Sensors []SensorsGroup `json:"sensors"`
+}
+
+type GroupPost struct {
+	Name string `json:"name"`
+}
+
+type GroupPatchDelete struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
 }
 
 // SensorsGroup groups, all sensors and boards in group

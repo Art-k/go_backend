@@ -1,17 +1,16 @@
 package main
 
 import (
+	Src "./src"
 	"encoding/json"
 	"fmt"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-
-	Src "./src"
-
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
 type boardTable struct {
@@ -34,6 +33,12 @@ type apiHTTPResponseJSONSensorTypes struct {
 }
 
 func main() {
+
+	err := godotenv.Load("parameters.env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	Src.Db, Src.Err = gorm.Open("sqlite3", "database.db")
 	if Src.Err != nil {
 		panic("failed to connect database")
@@ -59,6 +64,11 @@ func main() {
 	Src.Db.AutoMigrate(&Src.DeviceState{})
 	Src.Db.AutoMigrate(&Src.SGroup{})
 	Src.Db.AutoMigrate(&Src.SensorsGroup{})
+	Src.Db.AutoMigrate(&Src.WeatherForecastData{})
+
+	// Get weather forecast
+	//Src.DoEvery(20*time.Second, Src.GetWeatherForecast)
+
 	handleHTTP()
 }
 
@@ -78,8 +88,10 @@ func handleHTTP() {
 	http.HandleFunc("/group", Src.GroupCRUD)
 	http.HandleFunc("/groups", Src.Groups)
 
-	http.HandleFunc("/group_of_sensors", Src.GroupCRUD)
-	http.HandleFunc("/groups_of_sensors", Src.Groups)
+	http.HandleFunc("/weather_forecast", Src.WeatherForecast)
+
+	//http.HandleFunc("/group_of_sensors", Src.GroupCRUD)
+	//http.HandleFunc("/groups_of_sensors", Src.Groups)
 
 	fmt.Printf("Starting Server to HANDLE ahome.tech back end\nPort : " + Src.Port + "\nAPI revision " + Src.Version + "\n\n")
 	if err := http.ListenAndServe(":"+Src.Port, nil); err != nil {
@@ -163,12 +175,12 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 			element.Value = element.Value + float64(BoardSet.Delta)
 		}
 
-		addedrecordString, _ := json.Marshal(Response)
+		addedRecordString, _ := json.Marshal(Response)
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		n, _ := fmt.Fprintf(w, string(addedrecordString))
+		n, _ := fmt.Fprintf(w, string(addedRecordString))
 		fmt.Println(n)
 
 	case "POST":
