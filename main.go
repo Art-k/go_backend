@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
@@ -34,10 +33,10 @@ type apiHTTPResponseJSONSensorTypes struct {
 
 func main() {
 
-	err := godotenv.Load("parameters.env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	//err := godotenv.Load("parameters.env")
+	//if err != nil {
+	//	log.Fatal("Error loading .env file")
+	//}
 
 	Src.Db, Src.Err = gorm.Open("sqlite3", "database.db")
 	if Src.Err != nil {
