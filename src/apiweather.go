@@ -38,6 +38,12 @@ type WeatherForecastData struct {
 	Sunrize            int32
 }
 
+type WeatherForecastDataResponse struct {
+	API    string                `json:"api"`
+	Total  int                   `json:"total"`
+	Entity []WeatherForecastData `json:"entity"`
+}
+
 func WeatherForecast(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
@@ -90,6 +96,31 @@ func WeatherForecast(w http.ResponseWriter, r *http.Request) {
 				WindDirection:      incomingData.WindDirection,
 			})
 		}
+
+	case "GET":
+
+		//SD := r.URL.Query().Get("start_date")
+		//ED := r.URL.Query().Get("end_date")
+
+		log.Println("/weather_forecast GET answered\n\n")
+
+		var Response WeatherForecastDataResponse
+
+		Db.Find(&Response.Entity)
+
+		Response.API = Version
+		Response.Total = len(Response.Entity)
+
+		addedRecordString, _ := json.Marshal(Response)
+
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("content-type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		n, _ := fmt.Fprintf(w, string(addedRecordString))
+		fmt.Println(n)
+
+		log.Println("/weather_forecast GET answered\n\n")
+
 	}
 }
 

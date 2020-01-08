@@ -38,7 +38,8 @@ func BoardToDo(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Headers", "*")
 		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusNoContent)
-		fmt.Fprintf(w, string(""))
+		n, _ := fmt.Fprintf(w, string(""))
+		fmt.Println(n)
 
 		log.Println("/todo OPTIONS answered\n\n")
 
@@ -57,9 +58,9 @@ func BoardToDo(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if r.URL.Query().Get("mac") != "" && r.URL.Query().Get("command_done") == "" {
-			if r.URL.Query().Get("limit") != ""{
+			if r.URL.Query().Get("limit") != "" {
 				Db.Where("mac = ?", r.URL.Query().Get("mac")).Where("command_done = ?", false).Order("created_at asc").Limit(r.URL.Query().Get("limit")).Find(&Response.Entity)
-			}else{
+			} else {
 				Db.Where("mac = ?", r.URL.Query().Get("mac")).Where("command_done = ?", false).Order("created_at desc").Find(&Response.Entity)
 			}
 
@@ -68,11 +69,12 @@ func BoardToDo(w http.ResponseWriter, r *http.Request) {
 		Response.API = Version
 		Response.Total = len(Response.Entity)
 
-		addedrecordString, _ := json.Marshal(Response)
+		addedRecordString, _ := json.Marshal(Response)
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, string(addedrecordString))
+		n, _ := fmt.Fprintf(w, string(addedRecordString))
+		fmt.Println(n)
 
 		log.Println("/todo GET answered\n\n")
 
@@ -145,7 +147,6 @@ func BoardToDo(w http.ResponseWriter, r *http.Request) {
 		log.Println("/todo \t CommandHash : " + incomingData.CommandHash)
 		log.Println("/todo \t CommandDone : " + strconv.FormatBool(incomingData.CommandDone))
 		log.Println("/todo \t CommandStatus : " + incomingData.CommandStatus)
-
 
 		var command BoardToDoTable
 		Db.Where("command_hash = ?", incomingData.CommandHash).First(&command).Updates(BoardToDoTable{CommandDone: incomingData.CommandDone, CommandStatus: incomingData.CommandStatus})
