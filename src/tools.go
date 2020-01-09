@@ -95,3 +95,13 @@ func CheckIfTenOn(incData IncomingDataStructure) {
 		}
 	}
 }
+
+func OptionsAnswer(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "*")
+	w.Header().Set("content-type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
+	n, _ := fmt.Fprintf(w, string(""))
+	fmt.Println(n)
+}

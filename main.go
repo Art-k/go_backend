@@ -64,6 +64,7 @@ func main() {
 	Src.Db.AutoMigrate(&Src.SGroup{})
 	Src.Db.AutoMigrate(&Src.SensorsGroup{})
 	Src.Db.AutoMigrate(&Src.WeatherForecastData{})
+	Src.Db.AutoMigrate(&Src.Rule{})
 
 	// Get weather forecast
 	//Src.DoEvery(20*time.Second, Src.GetWeatherForecast)
@@ -89,8 +90,10 @@ func handleHTTP() {
 
 	http.HandleFunc("/weather_forecast", Src.WeatherForecast)
 
-	//http.HandleFunc("/group_of_sensors", Src.GroupCRUD)
-	//http.HandleFunc("/groups_of_sensors", Src.Groups)
+	http.HandleFunc("/rule", Src.ActionRule)
+	http.HandleFunc("/rules", Src.ActionRules)
+
+	http.HandleFunc("/notifications", Src.Notifications)
 
 	fmt.Printf("Starting Server to HANDLE ahome.tech back end\nPort : " + Src.Port + "\nAPI revision " + Src.Version + "\n\n")
 	if err := http.ListenAndServe(":"+Src.Port, nil); err != nil {
@@ -181,7 +184,6 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		n, _ := fmt.Fprintf(w, string(addedRecordString))
 		fmt.Println(n)
-
 	case "POST":
 		fmt.Println("POST sensor data")
 
@@ -222,7 +224,6 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 		// fmt.Println(addedrecordString)
 		n, _ := fmt.Fprintf(w, string(addedrecordString))
 		fmt.Println(n)
-
 	default:
 		n, _ := fmt.Fprintf(w, "Sorry, only POST methods are supported.")
 		fmt.Println(n)
