@@ -23,6 +23,7 @@ func Notifications(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 
 		log.Println("Notification Received")
+		log.Println(r.Body)
 
 		w.WriteHeader(http.StatusOK)
 		n, _ := fmt.Fprintf(w, "")
