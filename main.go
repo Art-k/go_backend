@@ -53,6 +53,14 @@ func main() {
 
 	log.SetOutput(f)
 
+	fn, err := os.OpenFile("web_hooks_log.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer fn.Close()
+
+	log.SetOutput(f)
+
 	// databasePrepare()
 	// Migrate the schema
 	Src.Db.AutoMigrate(&boardTable{})

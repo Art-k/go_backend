@@ -24,6 +24,7 @@ func Notifications(w http.ResponseWriter, r *http.Request) {
 
 		log.Println("Notification Received")
 		log.Println(r.Body)
+		fmt.Println(r.Body)
 
 		w.WriteHeader(http.StatusOK)
 		n, _ := fmt.Fprintf(w, "")
