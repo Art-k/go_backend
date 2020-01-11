@@ -151,7 +151,7 @@ func CheckIfWeHaveARule(t time.Time) {
 	ct := int64(time.Now().Unix())
 	log.Println(ct)
 	var activeRulesByTimer []RuleByTimer
-	Db.Where("active = ?", true).Where("expies >= ?", ct).Find(&activeRulesByTimer)
+	Db.Where("active = ?", true).Where("expires >= ?", ct).Find(&activeRulesByTimer)
 
 	for _, rule := range activeRulesByTimer {
 		if (ct-rule.StartsAt)%rule.RepeatEvery == 0 {
