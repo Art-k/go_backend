@@ -40,7 +40,7 @@ func postTelegrammMessage(msg string) {
 	fmt.Println(response)
 }
 
-// GetHash we use it to get hash for todo command
+// GetHash we use it to get hash for to-do command
 func GetHash() string {
 	id, _ := guuid.NewV4()
 	return id.String()
