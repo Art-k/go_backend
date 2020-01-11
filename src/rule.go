@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jinzhu/gorm"
+	"log"
 	"net/http"
 	"time"
 )
@@ -146,14 +147,15 @@ func ActionRules(w http.ResponseWriter, r *http.Request) {
 }
 
 func CheckIfWeHaveARule(t time.Time) {
-	fmt.Println("Tik")
+	//fmt.Println("Tik")
 	ct := int64(time.Now().Unix())
-
+	log.Println(ct)
 	var activeRulesByTimer []RuleByTimer
 	Db.Where("active = ?", true).Find(&activeRulesByTimer)
 
 	for _, rule := range activeRulesByTimer {
 		if (ct-rule.StartsAt)%rule.RepeatEvery == 0 {
+
 			Db.Create(&BoardToDoTable{
 				Mac:         rule.ActionMac,
 				Command:     "RELAY",
