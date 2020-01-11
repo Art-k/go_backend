@@ -19,6 +19,7 @@ type BoardToDoTable struct {
 	CommandHash   string
 	CommandDone   bool
 	CommandStatus string
+	CommandSent   bool `json:"-";gorm:"default:'false'"`
 }
 
 type apiHTTPResponseJSONToDo struct {
@@ -69,6 +70,11 @@ func BoardToDo(w http.ResponseWriter, r *http.Request) {
 		Response.API = Version
 		Response.Total = len(Response.Entity)
 
+		for _, rec := range Response.Entity {
+			var command BoardToDoTable
+			Db.Where("command_hash = ?", rec.CommandHash).First(&command).Updates(BoardToDoTable{CommandSent: true})
+		}
+
 		addedRecordString, _ := json.Marshal(Response)
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -103,6 +109,11 @@ func BoardToDo(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Println(incomingData)
 
+		Db.Where("mac = ?", incomingData.Mac).
+			Where("command_done = ?", false).
+			Where("command_sent = ?", false).
+			Where("command_status = ?", "").Delete(&BoardToDoTable{})
+
 		Db.Create(&BoardToDoTable{
 			Mac:         incomingData.Mac,
 			Command:     incomingData.Command,
@@ -124,7 +135,8 @@ func BoardToDo(w http.ResponseWriter, r *http.Request) {
 		var boardToDo BoardToDoTable
 		Db.Last(&boardToDo)
 		addedrecordString, _ := json.Marshal(boardToDo)
-		fmt.Fprintf(w, string(addedrecordString))
+		n, _ := fmt.Fprintf(w, string(addedrecordString))
+		fmt.Println(n)
 
 		log.Println("/todo POST done\n\n")
 
@@ -161,7 +173,8 @@ func BoardToDo(w http.ResponseWriter, r *http.Request) {
 		log.Println("/todo PATCH done\n\n")
 
 	default:
-		fmt.Fprintf(w, "Sorry, only OPTIONS,GET,POST,PATCH methods are supported. '"+r.Method+"' received")
+		n, _ := fmt.Fprintf(w, "Sorry, only OPTIONS,GET,POST,PATCH methods are supported. '"+r.Method+"' received")
+		fmt.Println(n)
 		log.Println("/todo PATCH done\n\n")
 	}
 }
