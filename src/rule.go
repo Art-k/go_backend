@@ -159,7 +159,7 @@ func CheckIfWeHaveARule(t time.Time) {
 			Db.Create(&BoardToDoTable{
 				Mac:         rule.ActionMac,
 				Command:     "RELAY",
-				CommandHash: "",
+				CommandHash: GetHash(),
 				CommandDone: false,
 				SubCommand:  rule.DoIFTrue,
 			})
