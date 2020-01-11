@@ -246,9 +246,3 @@ func GetWeatherForecast(t time.Time) {
 	}
 
 }
-
-func DoEvery(d time.Duration, f func(time.Time)) {
-	for x := range time.Tick(d) {
-		f(x)
-	}
-}

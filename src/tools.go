@@ -105,3 +105,9 @@ func OptionsAnswer(w http.ResponseWriter, r *http.Request) {
 	n, _ := fmt.Fprintf(w, string(""))
 	fmt.Println(n)
 }
+
+func DoEvery(d time.Duration, f func(time.Time)) {
+	for x := range time.Tick(d) {
+		f(x)
+	}
+}

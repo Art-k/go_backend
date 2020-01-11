@@ -5,27 +5,67 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	"net/http"
+	"time"
 )
 
-type Rule struct {
+type RuleBySensor struct {
 	gorm.Model
-	SensorMac  string
-	SensorType string
-	ActionMac  string
-	Condition  string
-	DoIFTrue   string
-	DoIFFalse  string
+	SensorMac   string
+	SensorType  string
+	ActionMac   string
+	Condition   string
+	DoIFTrue    string
+	DoIFFalse   string
+	RepeatEvery int64
+	Expires     int64
+	Active      bool
+}
+
+type RuleByTimer struct {
+	gorm.Model
+	ActionMac   string
+	DoIFTrue    string
+	DoIFFalse   string
+	StartsAt    int64
+	RepeatEvery int64
+	Expires     int64
+	Active      bool
+}
+
+type Rule struct {
+	RuleType     string //timer, sensor
+	RuleByTimer  RuleByTimer
+	RuleBySensor RuleBySensor
 }
 
 func ActionRulePOST(w http.ResponseWriter, r *http.Request) {
 
+	type ruleBySensor struct {
+		SensorMac   string
+		SensorType  string
+		ActionMac   string
+		Condition   string
+		DoIFTrue    string
+		DoIFFalse   string
+		RepeatEvery int64
+		Expires     int64
+		Active      bool
+	}
+
+	type ruleByTimer struct {
+		ActionMac   string
+		DoIFTrue    string
+		DoIFFalse   string
+		StartsAt    int64
+		RepeatEvery int64
+		Expires     int64
+		Active      bool
+	}
+
 	type incomingDataStructure struct {
-		SensorMac  string
-		SensorType string
-		ActionMac  string
-		Condition  string
-		DoIFTrue   string
-		DoIFFalse  string
+		RuleType     string //timer, sensor
+		RuleByTimer  RuleByTimer
+		RuleBySensor RuleBySensor
 	}
 
 	var incomingData incomingDataStructure
@@ -36,22 +76,50 @@ func ActionRulePOST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Db.Create(&Rule{
-		SensorMac:  incomingData.SensorMac,
-		SensorType: incomingData.SensorType,
-		ActionMac:  incomingData.ActionMac,
-		Condition:  incomingData.Condition,
-		DoIFTrue:   incomingData.DoIFTrue,
-		DoIFFalse:  incomingData.DoIFFalse,
-	})
+	if incomingData.RuleType == "sensor" {
+		Db.Create(&RuleBySensor{
+			SensorMac:   incomingData.RuleBySensor.SensorMac,
+			SensorType:  incomingData.RuleBySensor.SensorType,
+			ActionMac:   incomingData.RuleBySensor.ActionMac,
+			Condition:   incomingData.RuleBySensor.Condition,
+			DoIFTrue:    incomingData.RuleBySensor.DoIFTrue,
+			DoIFFalse:   incomingData.RuleBySensor.DoIFFalse,
+			RepeatEvery: incomingData.RuleBySensor.RepeatEvery,
+			Expires:     incomingData.RuleBySensor.Expires,
+			Active:      incomingData.RuleBySensor.Active,
+		})
 
-	var rule Rule
-	Db.Last(&rule)
-	addedRecordString, _ := json.Marshal(rule)
-	w.WriteHeader(http.StatusOK)
-	n, _ := fmt.Fprintf(w, string(addedRecordString))
-	fmt.Println(n)
-	return
+		var rule ruleBySensor
+		Db.Last(&rule)
+		addedRecordString, _ := json.Marshal(rule)
+		w.Header().Set("content-type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		n, _ := fmt.Fprintf(w, string(addedRecordString))
+		fmt.Println(n)
+		return
+	}
+
+	if incomingData.RuleType == "timer" {
+		Db.Create(&RuleByTimer{
+			ActionMac:   incomingData.RuleByTimer.ActionMac,
+			DoIFTrue:    incomingData.RuleByTimer.DoIFTrue,
+			DoIFFalse:   incomingData.RuleByTimer.DoIFFalse,
+			StartsAt:    incomingData.RuleByTimer.StartsAt,
+			RepeatEvery: incomingData.RuleByTimer.RepeatEvery,
+			Expires:     incomingData.RuleByTimer.Expires,
+			Active:      incomingData.RuleByTimer.Active,
+		})
+
+		var rule ruleByTimer
+		Db.Last(&rule)
+		addedRecordString, _ := json.Marshal(rule)
+		w.Header().Set("content-type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		n, _ := fmt.Fprintf(w, string(addedRecordString))
+		fmt.Println(n)
+		return
+	}
+
 }
 
 func ActionRule(w http.ResponseWriter, r *http.Request) {
@@ -75,4 +143,35 @@ func ActionRules(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 	default:
 	}
+}
+
+func CheckIfWeHaveARule(t time.Time) {
+	fmt.Println("Tik")
+	ct := int64(time.Now().Unix())
+
+	var activeRulesByTimer []RuleByTimer
+	Db.Where("active = ?", true).Find(&activeRulesByTimer)
+
+	for _, rule := range activeRulesByTimer {
+		if (ct-rule.StartsAt)%rule.RepeatEvery == 0 {
+			Db.Create(&BoardToDoTable{
+				Mac:         rule.ActionMac,
+				Command:     "RELAY",
+				CommandHash: "",
+				CommandDone: false,
+				SubCommand:  rule.DoIFTrue,
+			})
+
+			fmt.Println("=======================================")
+			fmt.Println("=======================================")
+			fmt.Println("=======================================")
+
+		}
+	}
+
+	//fmt.Println(ct)
+	//if ct%60 == 0 {
+	//	fmt.Println("Got it, can be devided by 60")
+	//}
+
 }

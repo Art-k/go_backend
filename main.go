@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 type boardTable struct {
@@ -61,6 +62,10 @@ func main() {
 
 	log.SetOutput(f)
 
+	go func() {
+		Src.DoEvery(1*time.Second, Src.CheckIfWeHaveARule)
+	}()
+
 	// databasePrepare()
 	// Migrate the schema
 	Src.Db.AutoMigrate(&boardTable{})
@@ -72,7 +77,8 @@ func main() {
 	Src.Db.AutoMigrate(&Src.SGroup{})
 	Src.Db.AutoMigrate(&Src.SensorsGroup{})
 	Src.Db.AutoMigrate(&Src.WeatherForecastData{})
-	Src.Db.AutoMigrate(&Src.Rule{})
+	Src.Db.AutoMigrate(&Src.RuleByTimer{})
+	Src.Db.AutoMigrate(&Src.RuleBySensor{})
 
 	// Get weather forecast
 	//Src.DoEvery(20*time.Second, Src.GetWeatherForecast)

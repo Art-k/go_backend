@@ -103,11 +103,13 @@ func BoardToDo(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Println(incomingData)
 
-		Db.Create(&BoardToDoTable{Mac: incomingData.Mac,
+		Db.Create(&BoardToDoTable{
+			Mac:         incomingData.Mac,
 			Command:     incomingData.Command,
 			CommandHash: incomingData.CommandHash,
 			CommandDone: incomingData.CommandDone,
-			SubCommand:  incomingData.SubCommand})
+			SubCommand:  incomingData.SubCommand,
+		})
 
 		log.Println("/todo record added")
 		log.Println("/todo \t Mac :\t" + incomingData.Mac)
