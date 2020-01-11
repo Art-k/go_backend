@@ -156,6 +156,11 @@ func CheckIfWeHaveARule(t time.Time) {
 	for _, rule := range activeRulesByTimer {
 		if (ct-rule.StartsAt)%rule.RepeatEvery == 0 {
 
+			Db.Where("mac = ?", rule.ActionMac).
+				Where("command_done = ?", false).
+				Where("command_sent = ?", false).
+				Where("command_status = ?", "").Delete(&BoardToDoTable{})
+
 			Db.Create(&BoardToDoTable{
 				Mac:         rule.ActionMac,
 				Command:     "RELAY",
