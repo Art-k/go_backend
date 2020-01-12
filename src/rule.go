@@ -218,6 +218,8 @@ func CheckIfWeHaveARule(t time.Time) {
 				SubCommand:  rule.DoIFTrue,
 			})
 
+			postTelegrammMessage("Send Command : " + rule.DoIFTrue)
+
 			fmt.Println("=======================================")
 			fmt.Println("=======================================")
 			fmt.Println("=======================================")
