@@ -189,6 +189,14 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 
 		for _, element := range Response.Entity {
 			element.Value = element.Value + float64(BoardSet.Delta)
+			if BoardSet.RelayInverse {
+				if element.Value == 1 {
+					element.Value = 0
+				} else {
+					element.Value = 1
+				}
+			}
+
 		}
 
 		addedRecordString, _ := json.Marshal(Response)

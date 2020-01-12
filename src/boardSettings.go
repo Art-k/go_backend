@@ -27,6 +27,7 @@ type BoardSettingsTable struct {
 	Delta                int64
 	Default              string
 	AdditionalParameters string
+	RelayInverse         bool
 }
 
 type apiHTTPResponseJSONBoardSetttings struct {
@@ -111,15 +112,16 @@ func GetBoardSettings(w http.ResponseWriter, r *http.Request) {
 		log.Println("/board_settings \t Default :\t" + incomingData.Default)
 		log.Println("/board_settings \t AdditionalParameters :\t" + incomingData.AdditionalParameters)
 
-		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.WriteHeader(http.StatusCreated)
 
 		var boardSettingsData BoardSettingsTable
 		Db.Last(&boardSettingsData)
 		addedrecordString, _ := json.Marshal(boardSettingsData)
-
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("content-type", "application/json")
 		fmt.Println(addedrecordString)
-		fmt.Fprintf(w, string(addedrecordString))
+		n, _ := fmt.Fprintf(w, string(addedrecordString))
+		fmt.Println(n)
 
 		log.Println("/board_settings POST done\n\n")
 
@@ -137,10 +139,11 @@ func GetBoardSettings(w http.ResponseWriter, r *http.Request) {
 		Response.Total = len(Response.Entity)
 
 		addedrecordString, _ := json.Marshal(Response)
-
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, string(addedrecordString))
+		n, _ := fmt.Fprintf(w, string(addedrecordString))
+		fmt.Println(n)
 
 		log.Println("/board_settings GET answered\n\n")
 
@@ -150,6 +153,7 @@ func GetBoardSettings(w http.ResponseWriter, r *http.Request) {
 		}
 
 	default:
-		fmt.Fprintf(w, "Sorry, only POST methods are supported.")
+		n, _ := fmt.Fprintf(w, "Sorry, only POST methods are supported.")
+		fmt.Println(n)
 	}
 }
