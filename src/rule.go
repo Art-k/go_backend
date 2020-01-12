@@ -154,7 +154,8 @@ func ActionRules(w http.ResponseWriter, r *http.Request) {
 		ct := int64(time.Now().Unix())
 		var response apiHTTPResponseJSONRule
 		response.API = Version
-		Db.Where("active = ?", true).Where("expires >= ?", ct).Find(response.Entity)
+		Db.Where("active = ?", true).Where("expires >= ?", ct).Find(&response.Entity)
+		//Db.Where("active = ?", true).Find(&response.Entity)
 
 		response.Total = len(response.Entity)
 		addedRecordString, _ := json.Marshal(response)
