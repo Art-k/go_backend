@@ -142,6 +142,27 @@ func ActionRule(w http.ResponseWriter, r *http.Request) {
 func ActionRules(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
+		type apiHTTPResponseJSONRule struct {
+			API    string        `json:"api"`
+			Total  int           `json:"total"`
+			Entity []RuleByTimer `json:"entity"`
+		}
+
+		//active := r.URL.Query().Get("active")
+		//expires := r.URL.Query().Get("show_expires")
+
+		ct := int64(time.Now().Unix())
+		var response apiHTTPResponseJSONRule
+		response.API = Version
+		Db.Where("active = ?", true).Where("expires >= ?", ct).Find(response.Entity)
+
+		response.Total = len(response.Entity)
+		addedRecordString, _ := json.Marshal(response)
+		w.Header().Set("content-type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		n, _ := fmt.Fprintf(w, string(addedRecordString))
+		fmt.Println(n)
+
 	default:
 	}
 }
