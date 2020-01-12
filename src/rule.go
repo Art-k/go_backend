@@ -137,14 +137,24 @@ func ActionRule(w http.ResponseWriter, r *http.Request) {
 	case "DELETE":
 		id := r.URL.Query().Get("id")
 		Type := r.URL.Query().Get("type")
+
 		if Type == "timer" {
 			var rule RuleByTimer
 			Db.Where("id = ?", id).Delete(&rule)
 		}
+
 		if Type == "sensor" {
 			var rule RuleBySensor
 			Db.Where("id = ?", id).Delete(&rule)
 		}
+
+		addedRecordString, _ := json.Marshal(rule)
+		w.Header().Set("content-type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		n, _ := fmt.Fprintf(w, string(addedRecordString))
+		fmt.Println(n)
+		return
+
 	default:
 	}
 }
