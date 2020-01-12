@@ -27,7 +27,7 @@ type BoardSettingsTable struct {
 	Delta                int64
 	Default              string
 	AdditionalParameters string
-	RelayInverse         bool
+	DoInverse            string
 }
 
 type apiHTTPResponseJSONBoardSetttings struct {
@@ -57,7 +57,7 @@ func GetBoardSettings(w http.ResponseWriter, r *http.Request) {
 	case "DELETE":
 
 		log.Println("/board_settings DELETE received")
-
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		// var boardSettings BoardSettingsTable
 		if r.URL.Query().Get("id") != "" {
 			log.Println("/board_settings record with id=" + r.URL.Query().Get("id") + " will be deleted")
@@ -79,6 +79,7 @@ func GetBoardSettings(w http.ResponseWriter, r *http.Request) {
 			Delta                int64
 			Default              string
 			AdditionalParameters string
+			DoInverse            string
 		}
 		var incomingData incomingDataStructure
 
@@ -100,7 +101,9 @@ func GetBoardSettings(w http.ResponseWriter, r *http.Request) {
 			Interval:             incomingData.Interval,
 			Delta:                incomingData.Delta,
 			Default:              incomingData.Default,
-			AdditionalParameters: incomingData.AdditionalParameters})
+			AdditionalParameters: incomingData.AdditionalParameters,
+			DoInverse:            incomingData.DoInverse,
+		})
 
 		log.Println("/board_settings record added")
 		log.Println("/board_settings \t Mac :\t" + incomingData.Mac)
@@ -111,16 +114,17 @@ func GetBoardSettings(w http.ResponseWriter, r *http.Request) {
 		log.Println("/board_settings \t Delta :\t" + strconv.FormatInt(incomingData.Delta, 10))
 		log.Println("/board_settings \t Default :\t" + incomingData.Default)
 		log.Println("/board_settings \t AdditionalParameters :\t" + incomingData.AdditionalParameters)
+		log.Println("/board_settings \t DoInverse :\t" + incomingData.DoInverse)
 
 		w.WriteHeader(http.StatusCreated)
 
 		var boardSettingsData BoardSettingsTable
 		Db.Last(&boardSettingsData)
-		addedrecordString, _ := json.Marshal(boardSettingsData)
+		addedRecordString, _ := json.Marshal(boardSettingsData)
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("content-type", "application/json")
-		fmt.Println(addedrecordString)
-		n, _ := fmt.Fprintf(w, string(addedrecordString))
+		fmt.Println(addedRecordString)
+		n, _ := fmt.Fprintf(w, string(addedRecordString))
 		fmt.Println(n)
 
 		log.Println("/board_settings POST done\n\n")

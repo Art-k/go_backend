@@ -184,20 +184,12 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 		Response.API = Src.Version
 		Response.Total = len(Response.Entity)
 
-		var BoardSet Src.BoardSettingsTable
-		Src.Db.Where("mac = ?", r.URL.Query().Get("mac")).Where("type = ?", r.URL.Query().Get("type")).Last(&BoardSet)
-
-		for _, element := range Response.Entity {
-			element.Value = element.Value + float64(BoardSet.Delta)
-			if BoardSet.RelayInverse {
-				if element.Value == 1 {
-					element.Value = 0
-				} else {
-					element.Value = 1
-				}
-			}
-
-		}
+		//var BoardSet Src.BoardSettingsTable
+		//
+		//
+		//for _, element := range Response.Entity {
+		//
+		//}
 
 		addedRecordString, _ := json.Marshal(Response)
 
@@ -226,11 +218,22 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 			Src.Db.Create(&boardTable{Mac: incomingData.Mac})
 		}
 
-		Src.Db.Create(&Src.SenseDataTable{
-			Mac:   incomingData.Mac,
-			Type:  incomingData.Valuetype,
-			Value: incomingData.Value,
-			Unit:  incomingData.Unit})
+		var BoardSet Src.BoardSettingsTable
+		Src.Db.Where("mac = ?", incomingData.Mac).Where("sense = ?", incomingData.Valuetype).Last(&BoardSet)
+
+		var SDT Src.SenseDataTable
+		SDT.Mac = incomingData.Mac
+		SDT.Type = incomingData.Valuetype
+		if BoardSet.DoInverse == "yes" {
+			if incomingData.Value == 1 {
+				SDT.Value = 0
+			} else {
+				SDT.Value = 1
+			}
+		}
+		SDT.Unit = incomingData.Unit
+
+		Src.Db.Create(&SDT)
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.WriteHeader(http.StatusCreated)
