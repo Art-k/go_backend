@@ -230,6 +230,8 @@ func sensorDatas(w http.ResponseWriter, r *http.Request) {
 			} else {
 				SDT.Value = 1
 			}
+		} else {
+			SDT.Value = incomingData.Value
 		}
 		SDT.Unit = incomingData.Unit
 
