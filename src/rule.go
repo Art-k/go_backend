@@ -72,6 +72,7 @@ func ActionRulePOST(w http.ResponseWriter, r *http.Request) {
 	var incomingData incomingDataStructure
 	err := json.NewDecoder(r.Body).Decode(&incomingData)
 	if err != nil {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("content-type", "application/json")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -93,6 +94,7 @@ func ActionRulePOST(w http.ResponseWriter, r *http.Request) {
 		var rule ruleBySensor
 		Db.Last(&rule)
 		addedRecordString, _ := json.Marshal(rule)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		n, _ := fmt.Fprintf(w, string(addedRecordString))
@@ -114,6 +116,7 @@ func ActionRulePOST(w http.ResponseWriter, r *http.Request) {
 		var rule ruleByTimer
 		Db.Last(&rule)
 		addedRecordString, _ := json.Marshal(rule)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		n, _ := fmt.Fprintf(w, string(addedRecordString))
@@ -143,6 +146,7 @@ func ActionRule(w http.ResponseWriter, r *http.Request) {
 			Db.Where("id = ?", id).Delete(&rule)
 
 			addedRecordString, _ := json.Marshal(rule)
+			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.Header().Set("content-type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			n, _ := fmt.Fprintf(w, string(addedRecordString))
@@ -155,6 +159,7 @@ func ActionRule(w http.ResponseWriter, r *http.Request) {
 			Db.Where("id = ?", id).Delete(&rule)
 
 			addedRecordString, _ := json.Marshal(rule)
+			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.Header().Set("content-type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			n, _ := fmt.Fprintf(w, string(addedRecordString))
@@ -186,6 +191,7 @@ func ActionRules(w http.ResponseWriter, r *http.Request) {
 
 		response.Total = len(response.Entity)
 		addedRecordString, _ := json.Marshal(response)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		n, _ := fmt.Fprintf(w, string(addedRecordString))
@@ -226,10 +232,4 @@ func CheckIfWeHaveARule(t time.Time) {
 
 		}
 	}
-
-	//fmt.Println(ct)
-	//if ct%60 == 0 {
-	//	fmt.Println("Got it, can be devided by 60")
-	//}
-
 }
