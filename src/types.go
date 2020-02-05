@@ -12,7 +12,7 @@ var Err error
 const Version = "0.2.1"
 
 // DbLogMode log mode for database
-const DbLogMode = true
+const DbLogMode = false
 
 // Port application use this port to get requests
 const Port = "55555"
@@ -70,4 +70,12 @@ type SensorsGroup struct {
 	GroupID    uint   `json:"group_id"`
 	MacID      uint   `json:"mac_id"`
 	SensorType string `json:"sensor_type"`
+}
+
+// SensorsGroup groups, all sensors and boards in group
+type BoardLog struct {
+	gorm.Model
+	SessionId string `json:"s"`
+	Mac       uint   `json:"mac"`
+	Log       string `json:"str"`
 }

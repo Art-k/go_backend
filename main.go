@@ -79,6 +79,7 @@ func main() {
 	Src.Db.AutoMigrate(&Src.WeatherForecastData{})
 	Src.Db.AutoMigrate(&Src.RuleByTimer{})
 	Src.Db.AutoMigrate(&Src.RuleBySensor{})
+	Src.Db.AutoMigrate(&Src.BoardLog{})
 
 	// Get weather forecast
 	//Src.DoEvery(20*time.Second, Src.GetWeatherForecast)
@@ -106,6 +107,9 @@ func handleHTTP() {
 
 	http.HandleFunc("/rule", Src.ActionRule)
 	http.HandleFunc("/rules", Src.ActionRules)
+
+	http.HandleFunc("/log", Src.ActionLog)
+	http.HandleFunc("/logs", Src.ActionLogs)
 
 	http.HandleFunc("/notifications", Src.Notifications)
 

@@ -136,6 +136,7 @@ func ActionRule(w http.ResponseWriter, r *http.Request) {
 		return
 
 	case "PATCH":
+
 	case "GET":
 	case "DELETE":
 		id := r.URL.Query().Get("id")
@@ -229,7 +230,6 @@ func CheckIfWeHaveARule(t time.Time) {
 			fmt.Println("=======================================")
 			fmt.Println("=======================================")
 			fmt.Println("=======================================")
-
 		}
 	}
 }
