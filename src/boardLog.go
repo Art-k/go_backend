@@ -8,7 +8,7 @@ import (
 )
 
 type httpIncomingLog struct {
-	SessionId string `json:"s"`
+	SessionId int    `json:"s"`
 	Mac       uint   `json:"mac"`
 	Log       string `json:"str"`
 }

@@ -75,7 +75,7 @@ type SensorsGroup struct {
 // SensorsGroup groups, all sensors and boards in group
 type BoardLog struct {
 	gorm.Model
-	SessionId string `json:"s"`
+	SessionId int    `json:"s"`
 	Mac       uint   `json:"mac"`
 	Log       string `json:"str"`
 }
