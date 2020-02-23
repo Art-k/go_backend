@@ -4,6 +4,7 @@ import (
 	Src "./src"
 	"encoding/json"
 	"fmt"
+	socketio "github.com/googollee/go-socket.io"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"log"
@@ -84,6 +85,8 @@ func main() {
 	// Get weather forecast
 	//Src.DoEvery(20*time.Second, Src.GetWeatherForecast)
 
+	fmt.Println("serve http")
+
 	handleHTTP()
 }
 
@@ -113,9 +116,46 @@ func handleHTTP() {
 
 	http.HandleFunc("/notifications", Src.Notifications)
 
+	server, err := socketio.NewServer(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	server.OnConnect("/ws", func(s socketio.Conn) error {
+		s.SetContext("")
+		fmt.Println("connected:", s.ID())
+		return nil
+	})
+	server.OnEvent("/ws", "notice", func(s socketio.Conn, msg string) {
+		fmt.Println("notice:", msg)
+		s.Emit("reply", "have "+msg)
+	})
+	server.OnEvent("/chat", "msg", func(s socketio.Conn, msg string) string {
+		s.SetContext(msg)
+		return "recv " + msg
+	})
+	server.OnEvent("/ws", "bye", func(s socketio.Conn) string {
+		last := s.Context().(string)
+		s.Emit("bye", last)
+		s.Close()
+		return last
+	})
+	server.OnError("/ws", func(s socketio.Conn, e error) {
+		fmt.Println("meet error:", e)
+	})
+	server.OnDisconnect("/ws", func(s socketio.Conn, reason string) {
+		fmt.Println("closed", reason)
+	})
+	go server.Serve()
+	defer server.Close()
+
+	http.Handle("/socket.io/", server)
+	//http.Handle("/", http.FileServer(http.Dir("../asset")))
+	//log.Println("Serving at localhost:8000...")
+	//log.Fatal(http.ListenAndServe(":8000", nil))
+
 	fmt.Printf("Starting Server to HANDLE ahome.tech back end\nPort : " + Src.Port + "\nAPI revision " + Src.Version + "\n\n")
 	if err := http.ListenAndServe(":"+Src.Port, nil); err != nil {
-		log.Fatal(err)
+		log.Fatal("error run http", err)
 	}
 }
 
